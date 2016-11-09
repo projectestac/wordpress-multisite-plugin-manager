@@ -306,12 +306,31 @@ class PluginManager {
 	function mass_activate($plugin) {
 		global $wpdb;
 
+		// XTEC ************ AFEGIT - Deactivate large network restriction
+		// 2016.06.08 @aginard
+        add_filter( 'wp_is_large_network', '__return_false' );
+        // ************ FI
+
 		if (wp_is_large_network()) {
 			?><div class="error"><p><?php _e('Failed to mass activate: Your multisite network is too large for this function.', 'pm'); ?></p></div><?php
 			return false;
 		}
 
+		// XTEC ************ MODIFICAT - Increase maximum execution time
+		// 2016.06.08 @aginard
+        set_time_limit(3600); // 1 hour
+        //************ ORIGINAL
+        /*
         set_time_limit(120);
+        */
+        // ************ FI
+
+		// XTEC ************ AFEGIT - In case it is requested via URL, try to increase memory limit
+		// 2016.10.04 @aginard
+		if ( isset( $_GET['extramem'] )) {
+			ini_set('memory_limit','800M');
+		}
+        // ************ FI
 
 		$blogs = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = {$wpdb->siteid} AND spam = 0");
 		if ($blogs)	{
@@ -329,12 +348,31 @@ class PluginManager {
 	function mass_deactivate($plugin) {
   	    global $wpdb;
 
+		// XTEC ************ AFEGIT - Deactivate large network restriction
+		// 2016.06.08 @aginard
+        add_filter( 'wp_is_large_network', '__return_false' );
+        // ************ FI
+
 		if (wp_is_large_network()) {
 			?><div class="error"><p><?php _e('Failed to mass activate: Your multisite network is too large for this function.', 'pm'); ?></p></div><?php
 			return false;
 		}
 
+		// XTEC ************ MODIFICAT - Increase maximum execution time
+		// 2016.06.08 @aginard
+        set_time_limit(3600); // 1 hour
+        //************ ORIGINAL
+        /*
         set_time_limit(120);
+        */
+        // ************ FI
+
+		// XTEC ************ AFEGIT - In case it is requested via URL, try to increase memory limit
+		// 2016.10.04 @aginard
+		if ( isset( $_GET['extramem'] )) {
+			ini_set('memory_limit','800M');
+		}
+        // ************ FI
 
 		$blogs = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs} WHERE site_id = {$wpdb->siteid} AND spam = 0");
 		if ($blogs)	{
