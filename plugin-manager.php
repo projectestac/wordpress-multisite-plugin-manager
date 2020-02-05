@@ -31,7 +31,14 @@ class PluginManager {
 	function __construct() {
 		//declare hooks
 		add_action( 'network_admin_menu', array( &$this, 'add_menu' ) );
+		// XTEC ************ MODIFICAT - Changed deprecated call wpmu_new_blog to wp_insert_site
+		// 2020.02.05 @nacho
+        add_action( 'wp_insert_site', array( &$this, 'new_blog' ), 50 ); //auto activation hook
+        //************ ORIGINAL
+        /*
 		add_action( 'wpmu_new_blog', array( &$this, 'new_blog' ), 50 ); //auto activation hook
+        */
+        // ************ FI
 		add_filter( 'all_plugins', array( &$this, 'remove_plugins' ) );
 		add_filter( 'plugin_action_links', array( &$this, 'action_links' ), 10, 4 );
 		//add_filter( 'active_plugins', array( &$this, 'check_activated' ) );
@@ -292,6 +299,22 @@ class PluginManager {
 	}
 
 	//activate on new blog
+	// XTEC ************ MODIFICAT - Modified function to create a new site
+	// 2020.02.05 @nacho
+	function new_blog() {
+
+	  require_once( ABSPATH.'wp-admin/includes/plugin.php' );
+
+	    $blog_id = get_current_blog_id();
+		$auto_activate = (array)get_site_option('pm_auto_activate_list');
+		if (count($auto_activate) && $auto_activate[0] != 'EMPTY') {
+		    switch_to_blog($blog_id);
+		    activate_plugins($auto_activate, '', false); //silently activate any plugins
+		    restore_current_blog();
+		}
+	}
+	//************ ORIGINAL
+    /*
 	function new_blog($blog_id) {
 	  require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 
@@ -302,6 +325,8 @@ class PluginManager {
 		    restore_current_blog();
 		}
 	}
+	*/
+    // ************ FI
 
 	function mass_activate($plugin) {
 		global $wpdb;
